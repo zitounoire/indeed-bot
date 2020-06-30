@@ -18,8 +18,8 @@ class IndeedBot:
         self.express_apply_jobs:arr
         """
 
-        self.driver = webdriver.Chrome('./chromedriver.exe')
-        self.query_string = "https://www.indeed.com/jobs?q={job}&l={city}%2C+{state}"
+        self.driver = webdriver.Chrome('./chromedriver')
+        self.query_string = "https://www.indeed.fr/jobs?q={job}&l={city}&sort=date"
         self.jobs = []
         self.express_apply_jobs = []
 
@@ -33,48 +33,42 @@ class IndeedBot:
         """
 
         self.driver.get(url)
-        time.sleep(3) # wait for page load
+        time.sleep(2) # wait for page load
 
 
-    def __convert_query(self, job, city, state):
+    def __convert_query(self, job, city):
         """
         Reformats the query for expected syntax of the search
         
         Args:
             job:str: Job type to search for.
             city:str: City location of the job.
-            state:str State location of the job.
         
         Returns:
             job:str
             city:str
-            state:str
         """
 
         job = '+'.join(job.split(" "))
         city = city.lower()
 
-        # State must be valid two letter code
-        if len(state) != 2:
-            raise Exception("State must be valid two letter code.")
-        state = state.upper()
 
-        return job, city, state
+
+        return job, city
     
 
-    def query(self, job, city, state):
+    def query(self, job, city):
         """ 
-        Searches indeed for a job in given city and state 
+        Searches indeed for a job in given city
 
         Args:
             job:str: Job type to search for.
             city:str: City location of the job.
-            state:str State location of the job.
         """
 
-        job, city, state = self.__convert_query(job, city, state)
+        job, city = self.__convert_query(job, city)
 
-        query = self.query_string.format(job=job, city=city, state=state)
+        query = self.query_string.format(job=job, city=city)
 
         self.nav(query)
 
@@ -116,9 +110,10 @@ class IndeedBot:
 
 
     def __process_apply_button(self):
+            self.driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
             apply_button = self.driver.find_element_by_id('indeedApplyButtonContainer')
             apply_button.click()
-            time.sleep(4)
+            time.sleep(2)
     
 
     def __process_job(self, job):
@@ -154,16 +149,16 @@ class IndeedBot:
 if __name__ == '__main__':
 
     profile = {
-        'name': "John Fisher",
-        'email': "jfishersolutions@gmail.com",
-        'phone_number': '860-364-3249',
-        'resume': os.getcwd() + '\\resume.txt'
+        'name': "jhon doe",
+        'email': "jhon.doe@example.com",
+        'phone_number': '0123456789',
+        'resume': os.getcwd() + '/resume.txt'
     }
     
     id_bot = IndeedBot()
 
-    # keywords, city, state
-    id_bot.query('python developer', 'dallas', 'tx')
+    # keywords, city
+    id_bot.query('alternance python dev', 'paris')
 
     id_bot.find_express_jobs()
     
